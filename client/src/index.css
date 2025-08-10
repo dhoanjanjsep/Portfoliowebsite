@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 5.9%);
+  --foreground: hsl(0, 0%, 91.2%);
+  --card: hsl(0, 0%, 10.2%);
+  --card-foreground: hsl(0, 0%, 91.2%);
+  --popover: hsl(0, 0%, 5.9%);
+  --popover-foreground: hsl(0, 0%, 91.2%);
+  --primary: hsl(142.1, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 5.9%);
+  --secondary: hsl(356.3, 90.6%, 54.3%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 14.9%);
+  --muted-foreground: hsl(0, 0%, 63.9%);
+  --accent: hsl(178.5, 56.7%, 56.3%);
+  --accent-foreground: hsl(0, 0%, 5.9%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 85.7%, 97.3%);
+  --border: hsl(0, 0%, 14.9%);
+  --input: hsl(0, 0%, 14.9%);
+  --ring: hsl(142.1, 100%, 50%);
+  --chart-1: hsl(142.1, 100%, 50%);
+  --chart-2: hsl(178.5, 56.7%, 56.3%);
+  --chart-3: hsl(356.3, 90.6%, 54.3%);
+  --chart-4: hsl(220, 70%, 50%);
+  --chart-5: hsl(280, 65%, 60%);
+  --gaming-primary: hsl(142.1, 100%, 50%);
+  --gaming-secondary: hsl(356.3, 90.6%, 54.3%);
+  --gaming-accent: hsl(178.5, 56.7%, 56.3%);
+  --gaming-dark: hsl(0, 0%, 5.9%);
+  --gaming-gray: hsl(0, 0%, 10.2%);
+  --gaming-light: hsl(0, 0%, 16.5%);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --card: hsl(0, 0%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --popover: hsl(0, 0%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --primary: hsl(142.1, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 3.9%);
+  --secondary: hsl(0, 0%, 14.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --muted: hsl(0, 0%, 14.9%);
+  --muted-foreground: hsl(0, 0%, 63.9%);
+  --accent: hsl(0, 0%, 14.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 85.7%, 97.3%);
+  --border: hsl(0, 0%, 14.9%);
+  --input: hsl(0, 0%, 14.9%);
+  --ring: hsl(142.1, 100%, 50%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: hsl(var(--gaming-dark));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .gradient-text {
+    background: linear-gradient(45deg, hsl(var(--gaming-primary)), hsl(var(--gaming-accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .neon-border {
+    border: 2px solid hsl(var(--gaming-primary));
+    box-shadow: 0 0 10px hsl(var(--gaming-primary) / 0.5);
+  }
+
+  .gaming-button {
+    @apply px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105;
+    background: hsl(var(--gaming-primary));
+    color: hsl(var(--gaming-dark));
+  }
+
+  .gaming-button:hover {
+    background: hsl(var(--gaming-primary) / 0.9);
+  }
+
+  .gaming-button-outline {
+    @apply px-8 py-3 rounded-lg font-semibold transition-all;
+    border: 1px solid hsl(var(--gaming-primary));
+    color: hsl(var(--gaming-primary));
+    background: transparent;
+  }
+
+  .gaming-button-outline:hover {
+    background: hsl(var(--gaming-primary));
+    color: hsl(var(--gaming-dark));
+  }
+}
+
+@layer utilities {
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    from { 
+      box-shadow: 0 0 20px hsl(var(--gaming-primary) / 0.5); 
+    }
+    to { 
+      box-shadow: 0 0 30px hsl(var(--gaming-primary) / 0.8), 0 0 40px hsl(var(--gaming-primary) / 0.5); 
+    }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
