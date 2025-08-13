@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { createDevLog } from "@/lib/devLogApi";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,39 +9,19 @@ import { X, Loader2, Plus, Minus } from "lucide-react";
 
 interface BlogPostFormProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export function BlogPostForm({ onClose }: BlogPostFormProps) {
+export function BlogPostForm({ onClose, onSuccess }: BlogPostFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  const createPostMutation = useMutation({
-    mutationFn: async (data: { title: string; content: string; category: string; tags: string[]; imageUrl?: string }) => {
-      return await apiRequest('POST', '/api/blog-posts', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/blog-posts'] });
-      onClose();
-      toast({
-        title: "게시글 작성 완료",
-        description: "새로운 개발 로그가 성공적으로 작성되었습니다.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "작성 실패",
-        description: "게시글 작성 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    }
-  });
 
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -55,7 +34,7 @@ export function BlogPostForm({ onClose }: BlogPostFormProps) {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !content.trim() || !category) {
       toast({
         title: "입력 오류",
@@ -65,13 +44,39 @@ export function BlogPostForm({ onClose }: BlogPostFormProps) {
       return;
     }
 
-    createPostMutation.mutate({
-      title: title.trim(),
-      content: content.trim(),
-      category,
-      tags,
-      imageUrl: imageUrl.trim() || undefined
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await createDevLog({
+        title: title.trim(),
+        content: content.trim(),
+        category,
+        tags: tags.length > 0 ? tags : null,
+        imageUrl: imageUrl.trim() || null
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "게시글 작성 완료",
+        description: "새로운 개발 로그가 성공적으로 작성되었습니다.",
+      });
+
+      // 성공 콜백 호출
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      console.error('Error creating dev log:', error);
+      toast({
+        title: "작성 실패",
+        description: "게시글 작성 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -176,9 +181,9 @@ export function BlogPostForm({ onClose }: BlogPostFormProps) {
             <Button 
               className="gaming-button flex-1"
               onClick={handleSubmit}
-              disabled={createPostMutation.isPending}
+              disabled={isSubmitting}
             >
-              {createPostMutation.isPending && <Loader2 className="mr-2 animate-spin" size={16} />}
+              {isSubmitting && <Loader2 className="mr-2 animate-spin" size={16} />}
               작성 완료
             </Button>
             <Button 

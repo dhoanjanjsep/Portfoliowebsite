@@ -4,7 +4,8 @@ import { ProjectGallery } from "@/components/project-gallery";
 import { BlogPostForm } from "@/components/blog-post-form";
 import { ContactForm } from "@/components/contact-form";
 import { useQuery } from "@tanstack/react-query";
-import { BlogPost } from "@shared/schema";
+import { DevLog } from "@/lib/supabase";
+import { getAllDevLogs } from "@/lib/devLogApi";
 import { Box, Lightbulb, Settings, Users, Play, Expand, Upload, Calendar, Code, Gamepad2, Eye, ArrowRight, Edit, Trash2, ChevronLeft, ChevronRight, Plus, Search, Mail, Linkedin, Github, Youtube, Twitter } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,15 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("전체 카테고리");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: blogPosts = [], isLoading: blogLoading } = useQuery<BlogPost[]>({
-    queryKey: ['/api/blog-posts']
+  // React Query를 사용하여 dev logs 데이터 가져오기
+  const { data: blogPosts = [], isLoading: blogLoading, refetch } = useQuery<DevLog[]>({
+    queryKey: ['dev-logs'],
+    queryFn: async () => {
+      const { data, error } = await getAllDevLogs();
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5분
   });
 
   const filteredPosts = blogPosts.filter(post => {
@@ -29,6 +37,11 @@ export default function Home() {
 
   const scrollToSection = (sectionId: string) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // 블로그 포스트 작성 성공 후 데이터 새로고침
+  const handleBlogSuccess = () => {
+    refetch();
   };
 
   return (
@@ -326,7 +339,7 @@ export default function Home() {
 
       {/* Blog Post Form Modal */}
       {showBlogForm && (
-        <BlogPostForm onClose={() => setShowBlogForm(false)} />
+        <BlogPostForm onClose={() => setShowBlogForm(false)} onSuccess={handleBlogSuccess} />
       )}
     </div>
   );
