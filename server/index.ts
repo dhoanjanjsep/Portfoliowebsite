@@ -115,7 +115,8 @@ async function startServer() {
         console.log(`🌐 통합 서버: http://localhost:${availablePort}`);
         console.log(`📱 클라이언트와 서버가 통합되어 실행 중입니다.`);
       } else {
-        console.log(`🌐 애플리케이션: http://localhost:${availablePort}`);
+        console.log(`🌐 프로덕션 서버: http://localhost:${availablePort}`);
+        console.log(`📁 정적 파일 서빙: dist/public/`);
       }
     });
   } catch (error) {
