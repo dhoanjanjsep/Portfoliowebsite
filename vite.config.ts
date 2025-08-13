@@ -29,11 +29,15 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    port: 5173,
+    port: 3000, // 서버와 동일한 포트로 설정
     host: true,
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+  },
+  preview: {
+    port: 3000,
+    host: true,
   },
 });

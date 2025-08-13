@@ -3,6 +3,11 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
 import { createServer } from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // 환경변수 설정 (Windows 환경 대응)
 if (!process.env.NODE_ENV) {
@@ -27,6 +32,18 @@ console.log(`Database URL: ${process.env.DATABASE_URL}`);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// CORS 설정 추가
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -95,8 +112,8 @@ async function startServer() {
     httpServer.listen(availablePort, () => {
       console.log(`🚀 서버가 포트 ${availablePort}에서 실행 중입니다.`);
       if (process.env.NODE_ENV === 'development') {
-        console.log(`📱 클라이언트: http://localhost:5173`);
-        console.log(`🔧 API 서버: http://localhost:${availablePort}`);
+        console.log(`🌐 통합 서버: http://localhost:${availablePort}`);
+        console.log(`📱 클라이언트와 서버가 통합되어 실행 중입니다.`);
       } else {
         console.log(`🌐 애플리케이션: http://localhost:${availablePort}`);
       }

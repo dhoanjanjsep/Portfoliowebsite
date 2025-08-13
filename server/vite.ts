@@ -5,6 +5,10 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config.js";
 import { nanoid } from "nanoid";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const viteLogger = createLogger();
 
@@ -38,16 +42,26 @@ export async function setupVite(app: Express, server: Server) {
     },
     server: serverOptions,
     appType: "custom",
+    root: path.resolve(__dirname, "../client"), // 클라이언트 루트 경로 수정
   });
 
   app.use(vite.middlewares);
+  
+  // API 라우트는 Vite 미들웨어 이전에 처리되어야 함
+  app.use("/api", (req, res, next) => {
+    next();
+  });
+  
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
+    // API 요청은 건너뛰기
+    if (url.startsWith("/api")) {
+      return next();
+    }
+
     try {
-      const clientTemplate = fileURLToPath(
-        new URL("../client/index.html", import.meta.url)
-      );
+      const clientTemplate = path.resolve(__dirname, "../client/index.html");
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
@@ -65,7 +79,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = fileURLToPath(new URL("../dist/public", import.meta.url));
+  const distPath = path.resolve(__dirname, "../dist/public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -77,6 +91,6 @@ export function serveStatic(app: Express) {
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    res.sendFile(fileURLToPath(new URL("../dist/public/index.html", import.meta.url)));
+    res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
